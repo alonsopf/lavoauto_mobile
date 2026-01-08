@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "355378676764",
+    "project_id": "lavoauto",
+    "storage_bucket": "lavoauto.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:355378676764:android:b844aaac3a6ae17d10cbd9",
+        "android_client_info": {
+          "package_name": "com.alonsopf.lavoauto"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDp0F1rgI_pKNnOnZxFmw1hVB8o043Lysc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

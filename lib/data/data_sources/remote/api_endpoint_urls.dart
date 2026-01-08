@@ -1,0 +1,58 @@
+class ApiEndpointUrls {
+  // Auth Endpoint Urls (Lavoauto - Car Washing Service)
+
+  static const String signup_ = "lavoauto_register"; // client signup
+  static const String signupWorker_ = "lavoauto_register-lavador"; // washer signup
+  static const String uploadProfile = "upload-photo";
+  static const String login_ = "lavoauto_login";
+  static const String resetPassword_ = "remember-password";
+  static const String deleteAccount = "delete-account";
+
+  // Location Api Endpoints
+  static const String zipCode_ = "zip?zip=";
+
+  // User Api Endpoints
+
+  static const String userInfo = "user-info?token="; //user / workers
+  static const String userCreateOrder = "create-order";
+  static const String userGetOrders = "get-order-requests?token=";
+  static const String userOrderBids = "list-pujas-for-order?token=";
+  static const String userAcceptBid = "accept-puja";
+  static const String updateUserInfo = "update-info";
+
+  // Workers Api Endpoints
+  static const String workerGetAvailableOrders = "list-available-orders?token=";
+  static const String workerMyWork = "my-work";
+  static const String workerGetOrderDetails =
+      "get-lavador-order-details?token=";
+  static const String workerGetAvailableOrderDetails =
+      "get-available-order-details?token=";
+  static const String workerCreateBid = "create-puja-lavador";
+  static const String workerCollect = "lavador-collect-lavado";
+  static const String workerDeliverOrder = "deliver-lavado";
+  static const String updateWorkerInfo = "update-info-lavador";
+
+  // Rating Api Endpoints
+  static const String rateService = "rate-service";
+  static const String rateClient = "rate-client";
+
+  // Payment Api Endpoints
+  static const String createSetupIntent = "create-setup-intent";
+  static const String createPaymentMethod = "create-payment-method";
+  static const String getPaymentMethods = "get-stripe-payment-methods";
+  static const String setDefaultPaymentMethod = "set-default-payment-method";
+  static const String deletePaymentMethod = "delete-payment-method";
+  static const String processAutomaticPayment = "process-automatic-payment";
+
+  // App Configuration Api Endpoints
+  static const String supportInfo = "support-info";
+
+  // User Addresses Api Endpoints
+  static const String getUserAddresses = "get-user-addresses"; // GET
+  static const String saveUserAddress = "save-user-address"; // POST
+  static const String deleteUserAddress = "delete-user-address"; // DELETE
+  static const String setDefaultAddress = "set-default-address"; // POST
+
+  // Order Creation Api Endpoints
+  static const String createOrder = "create-order"; // POST
+}
