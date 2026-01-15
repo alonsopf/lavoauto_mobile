@@ -10,6 +10,9 @@ import 'package:lavoauto/features/pages/history/order_history_page.dart';
 import 'package:lavoauto/features/pages/orderDetail/order_detail_page.dart';
 import 'package:lavoauto/features/pages/service/service_select_page.dart';
 import 'package:lavoauto/features/pages/support/support_page.dart';
+import 'package:lavoauto/features/pages/vehiculos/mis_vehiculos_page.dart';
+import 'package:lavoauto/features/pages/order_flow/seleccionar_vehiculo_page.dart';
+import 'package:lavoauto/features/pages/ordenes/mis_ordenes_page.dart';
 import 'package:lavoauto/presentation/common_widgets/custom_drawer.dart';
 import 'package:lavoauto/presentation/router/router.gr.dart' as routeFiles;
 import 'package:lavoauto/theme/app_color.dart';
@@ -36,7 +39,6 @@ class _HomePageState extends State<HomePage> {
     final token = Utils.getAuthenticationToken();
     if (token.isNotEmpty) {
       _userInfoBloc.add(FetchUserProfileInfoEvent(token: token));
-      // Fetch orders on home page initialization
       _orderBloc.add(FetchOrderRequestsEvent(GetOrderRequests(token: token)));
     }
   }
@@ -73,6 +75,7 @@ class _HomePageState extends State<HomePage> {
         return status;
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -156,11 +159,12 @@ class _HomePageState extends State<HomePage> {
                 style: TextStyle(fontSize: 26, color: AppColors.primaryNewDark),
               ),
               const SizedBox(height: 20),
+              // Nueva Orden Button
               GestureDetector(
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => const ServiceSelectPage(),
+                      builder: (context) => const SeleccionarVehiculoPage(),
                     ),
                   );
                 },
@@ -168,32 +172,54 @@ class _HomePageState extends State<HomePage> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: AppColors.primaryNew,
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF4A90E2), Color(0xFF357ABD)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                     borderRadius: BorderRadius.circular(22),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF4A90E2).withOpacity(0.3),
+                        blurRadius: 12,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SvgPicture.asset(Assets.basket, height: 40),
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.local_car_wash,
+                          size: 32,
+                          color: Colors.white,
+                        ),
+                      ),
                       const SizedBox(width: 20),
                       const Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Nueva orden",
+                              "Nueva Orden",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 28,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                             SizedBox(height: 4),
                             Text(
-                              "Lavado a domicilio fácil, rápido y a buen precio",
+                              "Solicita un lavado a domicilio ahora",
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 20,
+                                fontSize: 16,
                               ),
                             ),
                           ],
@@ -202,6 +228,45 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                 ),
+              ),
+              const SizedBox(height: 20),
+              // Quick Actions Grid
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildQuickActionCard(
+                      context,
+                      icon: Icons.list_alt,
+                      title: 'Mis Órdenes',
+                      subtitle: 'Ver historial',
+                      color: Colors.purple,
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const MisOrdenesPage(),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildQuickActionCard(
+                      context,
+                      icon: Icons.directions_car,
+                      title: 'Mis Vehículos',
+                      subtitle: 'Gestionar',
+                      color: Colors.green,
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const MisVehiculosPage(),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 25),
               const Text(
@@ -326,6 +391,25 @@ class _HomePageState extends State<HomePage> {
                     onTap: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
+                          builder: (context) => const MisVehiculosPage(),
+                        ),
+                      );
+                    },
+                    child: Row(
+                      children: [
+                        const Icon(Icons.directions_car, color: AppColors.primaryNewDark, size: 24),
+                        const SizedBox(width: 6),
+                        const Text(
+                          "Mis vehículos",
+                          style: TextStyle(fontSize: 22, color: AppColors.primaryNewDark),
+                        )
+                      ],
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
                           builder: (context) => const OrderHistoryPage(),
                         ),
                       );
@@ -336,21 +420,6 @@ class _HomePageState extends State<HomePage> {
                         const SizedBox(width: 6),
                         const Text(
                           "Ver historial",
-                          style: TextStyle(fontSize: 22, color: AppColors.primaryNewDark),
-                        )
-                      ],
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      // TODO: Implement favorites screen
-                    },
-                    child: Row(
-                      children: [
-                        SvgPicture.asset(Assets.like),
-                        const SizedBox(width: 6),
-                        const Text(
-                          "Ver favoritos",
                           style: TextStyle(fontSize: 22, color: AppColors.primaryNewDark),
                         )
                       ],
@@ -384,6 +453,67 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(height: 40),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuickActionCard(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                icon,
+                color: color,
+                size: 28,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: AppColors.primaryNewDark,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: const TextStyle(
+                fontSize: 13,
+                color: AppColors.grey,
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -10,6 +10,7 @@ import 'package:lavoauto/features/pages/my_active_orders/my_active_orders_page.d
 import 'package:lavoauto/features/pages/earnings/earnings_page.dart';
 import 'package:lavoauto/features/pages/lavador_profile/lavador_profile_page.dart';
 import 'package:lavoauto/features/pages/chat_list/chat_list_page.dart';
+import 'package:lavoauto/features/pages/lavador_ordenes/lavador_ordenes_page.dart';
 import 'package:lavoauto/presentation/common_widgets/custom_drawer.dart';
 import 'package:lavoauto/presentation/router/router.gr.dart' as routeFiles;
 import 'package:lavoauto/theme/app_color.dart';
@@ -170,7 +171,7 @@ class _LavadorHomePageState extends State<LavadorHomePage> {
                 ),
               ),
               const SizedBox(height: 30),
-              // Ver trabajos disponibles button
+              // Ver trabajos disponibles button (Old system)
               _buildMenuButton(
                 icon: Icons.local_offer_outlined,
                 title: "Ver trabajos disponibles",
@@ -178,6 +179,21 @@ class _LavadorHomePageState extends State<LavadorHomePage> {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => const AvailableOrdersPage(),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+              // Órdenes Recibidas button (New system)
+              _buildMenuButton(
+                icon: Icons.assignment_outlined,
+                title: "Órdenes Recibidas",
+                subtitle: "Nuevo sistema de órdenes",
+                color: AppColors.primaryNew,
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const LavadorOrdenesPage(),
                     ),
                   );
                 },
@@ -206,6 +222,15 @@ class _LavadorHomePageState extends State<LavadorHomePage> {
                       builder: (context) => const EarningsPage(),
                     ),
                   );
+                },
+              ),
+              const SizedBox(height: 16),
+              // Mis Servicios button
+              _buildMenuButton(
+                icon: Icons.build_outlined,
+                title: "Mis Servicios",
+                onTap: () {
+                  context.router.push(routeFiles.MisServiciosListRoute());
                 },
               ),
               const SizedBox(height: 40),
@@ -247,7 +272,11 @@ class _LavadorHomePageState extends State<LavadorHomePage> {
     required IconData icon,
     required String title,
     required VoidCallback onTap,
+    String? subtitle,
+    Color? color,
   }) {
+    final effectiveColor = color ?? AppColors.primaryNew;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -272,24 +301,40 @@ class _LavadorHomePageState extends State<LavadorHomePage> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.primaryNew.withOpacity(0.1),
+                color: effectiveColor.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 icon,
                 size: 28,
-                color: AppColors.primaryNew,
+                color: effectiveColor,
               ),
             ),
             const SizedBox(width: 16),
             Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.black,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.black,
+                    ),
+                  ),
+                  if (subtitle != null) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: effectiveColor,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
             const Icon(

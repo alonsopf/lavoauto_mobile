@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lavoauto/bloc/bloc/user_info_bloc.dart';
 import 'package:lavoauto/features/pages/edit_services/edit_services_page.dart';
 import 'package:lavoauto/features/pages/edit_profile/edit_profile_page.dart';
+import 'package:lavoauto/features/pages/precio_km/precio_km_page.dart';
 import 'package:lavoauto/theme/app_color.dart';
 import 'package:lavoauto/utils/utils.dart';
 
@@ -144,11 +145,12 @@ class _LavadorProfilePageState extends State<LavadorProfilePage> {
                     },
                   ),
                   _menuItem(
-                    title: "Editar precios",
+                    title: "Precio por KM",
                     onTap: () {
-                      // TODO: Navigate to edit prices page
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Funcionalidad próximamente')),
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const PrecioKmPage(),
+                        ),
                       );
                     },
                   ),

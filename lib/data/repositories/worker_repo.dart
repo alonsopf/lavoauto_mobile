@@ -402,4 +402,44 @@ class WorkerRepo extends ApiClient {
       return ApiResponse(errorMessage: 'Error: $e');
     }
   }
+
+  // ====== PRECIO KM ======
+
+  /// Update lavador's price per kilometer
+  Future<ApiResponse<Map<String, dynamic>>> updatePrecioKm({
+    required String token,
+    required double precioKm,
+  }) async {
+    try {
+      debugPrint("POST request to: lavoauto_update-precio-km");
+      debugPrint("precio_km: $precioKm");
+
+      final body = {
+        'precio_km': precioKm,
+      };
+
+      final response = await postService(
+        'lavoauto_update-precio-km?token=$token',
+        body,
+        contextType: true,
+      );
+
+      if (response != null) {
+        var response_ = jsonDecode(response.body);
+        debugPrint("Update precio_km response: $response_");
+
+        if (response_['message'] != null) {
+          return ApiResponse(data: response_);
+        } else {
+          return ApiResponse(
+            errorMessage: response_['error'] ?? 'Failed to update precio_km',
+          );
+        }
+      } else {
+        return ApiResponse(errorMessage: 'No response from server');
+      }
+    } catch (e) {
+      return ApiResponse(errorMessage: 'Error: $e');
+    }
+  }
 }

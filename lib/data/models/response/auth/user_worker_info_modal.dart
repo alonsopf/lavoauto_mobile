@@ -86,6 +86,10 @@ class UserWorkerInfo {
   @JsonKey(name: 'password_hash')
   final String? passwordHash;
 
+  /// Price per kilometer
+  @JsonKey(name: 'precio_km')
+  final double? precioKm;
+
   UserWorkerInfo({
     this.nombre,
     this.apellidos,
@@ -106,6 +110,7 @@ class UserWorkerInfo {
     this.stripeAccountId,
     this.stripeAccountStatus,
     this.passwordHash,
+    this.precioKm,
   });
 
   factory UserWorkerInfo.fromJson(Map<String, dynamic> json) =>

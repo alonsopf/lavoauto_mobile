@@ -11,6 +11,7 @@ import '../../../bloc/bloc/user_info_bloc.dart';
 import '../../../bloc/lavador/lavador_order_detail_bloc.dart';
 import '../../../bloc/lavador/available_order_detail_bloc.dart';
 import '../../../bloc/user/order_bloc.dart';
+import '../../../bloc/vehiculos/vehiculos_bloc.dart';
 import '../../../bloc/worker/jobsearch/jobsearch_bloc.dart';
 import '../../../bloc/worker/services/services_bloc.dart';
 import '../../../data/repositories/user_repo.dart';
@@ -58,6 +59,9 @@ class _LavoautoAppState extends State<LavoautoApp> {
         ),
         BlocProvider<AvailableOrderDetailBloc>(
           create: (context) => AppContainer.getIt.get<AvailableOrderDetailBloc>(),
+        ),
+        BlocProvider<VehiculosBloc>(
+          create: (context) => AppContainer.getIt.get<VehiculosBloc>(),
         ),
       ],
       child: MaterialApp.router(

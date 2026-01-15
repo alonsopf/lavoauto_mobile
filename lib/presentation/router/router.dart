@@ -1,5 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:lavoauto/presentation/router/router.gr.dart';
+import '../screens/serviceprovider/mis_servicios_list_screen.dart';
+import '../screens/serviceprovider/add_servicio_screen.dart';
 
 @AutoRouterConfig(replaceInRouteName: 'Screen,Route')
 class AppRouter extends RootStackRouter {
@@ -33,5 +35,8 @@ class AppRouter extends RootStackRouter {
     AutoRoute(page: OrderDetail.page),
     AutoRoute(page: LavadorOrderDetail.page),
     AutoRoute(page: PrivacyPolicyRoute.page),
+    // Service Management Routes
+    AutoRoute(page: MisServiciosListRoute.page),
+    AutoRoute(page: AddServicioRoute.page),
   ];
 }

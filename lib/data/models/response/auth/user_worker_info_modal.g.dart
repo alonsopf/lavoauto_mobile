@@ -43,6 +43,7 @@ UserWorkerInfo _$UserWorkerInfoFromJson(Map<String, dynamic> json) =>
       stripeAccountId: json['stripe_account_id'] as String?,
       stripeAccountStatus: json['stripe_account_status'] as String?,
       passwordHash: json['password_hash'] as String?,
+      precioKm: (json['precio_km'] as num?)?.toDouble(),
     );
 
 Map<String, dynamic> _$UserWorkerInfoToJson(UserWorkerInfo instance) =>
@@ -66,4 +67,5 @@ Map<String, dynamic> _$UserWorkerInfoToJson(UserWorkerInfo instance) =>
       'stripe_account_id': instance.stripeAccountId,
       'stripe_account_status': instance.stripeAccountStatus,
       'password_hash': instance.passwordHash,
+      'precio_km': instance.precioKm,
     };

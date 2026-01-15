@@ -13,7 +13,7 @@ class ApiEndpointUrls {
 
   // User Api Endpoints
 
-  static const String userInfo = "user-info?token="; //user / workers
+  static const String userInfo = "lavoauto_user-info?token="; //user / workers
   static const String userCreateOrder = "create-order";
   static const String userGetOrders = "get-order-requests?token=";
   static const String userOrderBids = "list-pujas-for-order?token=";
@@ -55,4 +55,31 @@ class ApiEndpointUrls {
 
   // Order Creation Api Endpoints
   static const String createOrder = "create-order"; // POST
+
+  // Service Management Api Endpoints (Lavador)
+  static const String lavoauto_tipos_servicio_catalogo = "lavoauto_tipos-servicio-catalogo"; // GET
+  static const String lavoauto_lavador_servicios = "lavoauto_lavador-servicios"; // GET
+  static const String lavoauto_add_servicio = "lavoauto_add-servicio"; // POST
+  static const String lavoauto_delete_servicio = "lavoauto_delete-servicio"; // DELETE
+  static const String lavoauto_update_servicio_disponibilidad = "lavoauto_update-servicio-disponibilidad"; // POST
+
+  // Vehicle Management Api Endpoints (Client)
+  static const String lavoauto_get_cliente_vehiculos = "lavoauto_get-cliente-vehiculos"; // GET
+  static const String lavoauto_get_catalogo_vehiculos = "lavoauto_get-catalogo-vehiculos"; // GET
+  static const String lavoauto_add_catalogo_vehiculo = "lavoauto_add-catalogo-vehiculo"; // POST
+  static const String lavoauto_add_cliente_vehiculo = "lavoauto_add-cliente-vehiculo"; // POST
+  static const String lavoauto_delete_cliente_vehiculo = "lavoauto_delete-cliente-vehiculo"; // DELETE
+
+  // Order Creation Api Endpoints
+  static const String lavoauto_lavadores_cercanos = "lavoauto_lavadores-cercanos"; // GET
+
+  // Order Management Api Endpoints - Cliente
+  static const String lavoauto_crear_orden = "lavoauto_crear-orden"; // POST
+  static const String lavoauto_mis_ordenes = "lavoauto_mis-ordenes"; // GET
+
+  // Order Management Api Endpoints - Lavador
+  static const String lavoauto_lavador_ordenes_pendientes = "lavoauto_lavador-ordenes-pendientes"; // GET
+  static const String lavoauto_lavador_comenzar_servicio = "lavoauto_lavador-comenzar-servicio"; // POST
+  static const String lavoauto_lavador_completar_servicio = "lavoauto_lavador-completar-servicio"; // POST
+  static const String lavoauto_lavador_ordenes_activas = "lavoauto_lavador-ordenes-activas"; // GET
 }
