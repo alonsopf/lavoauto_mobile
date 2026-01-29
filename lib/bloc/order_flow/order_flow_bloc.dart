@@ -14,6 +14,7 @@ class OrderFlowBloc extends Bloc<OrderFlowEvent, OrderFlowState> {
   // Store selected vehicle info for passing between steps
   int? _selectedVehiculoId;
   String? _selectedVehiculoInfo;
+  String? _selectedCategoriaVehiculo;
 
   OrderFlowBloc(
     this.vehiculosRepository,
@@ -54,10 +55,12 @@ class OrderFlowBloc extends Bloc<OrderFlowEvent, OrderFlowState> {
     // Store selected vehicle for later use
     _selectedVehiculoId = event.vehiculoClienteId;
     _selectedVehiculoInfo = event.vehiculoInfo;
+    _selectedCategoriaVehiculo = event.categoriaVehiculo;
 
     emit(VehiculoSelectedForOrder(
       vehiculoClienteId: event.vehiculoClienteId,
       vehiculoInfo: event.vehiculoInfo,
+      categoriaVehiculo: event.categoriaVehiculo,
     ));
   }
 
@@ -68,13 +71,24 @@ class OrderFlowBloc extends Bloc<OrderFlowEvent, OrderFlowState> {
     emit(const OrderFlowLoading());
 
     try {
-      final response = await orderFlowRepository.getLavadoresCercanos(event.token);
+      // Use category from event, or from stored state, or empty string
+      final categoria = event.categoriaVehiculo.isNotEmpty
+          ? event.categoriaVehiculo
+          : (_selectedCategoriaVehiculo ?? '');
+
+      final response = await orderFlowRepository.getLavadoresCercanos(
+        event.token,
+        categoriaVehiculo: categoria.isNotEmpty ? categoria : null,
+        forceRecalc: event.forceRecalc,
+      );
 
       if (response.data != null) {
         emit(LavadoresCercanosLoaded(
           lavadores: response.data!.lavadores,
-          vehiculoClienteId: _selectedVehiculoId!,
-          vehiculoInfo: _selectedVehiculoInfo!,
+          vehiculoClienteId: _selectedVehiculoId ?? 0,
+          vehiculoInfo: _selectedVehiculoInfo ?? '',
+          categoriaVehiculo: categoria,
+          clienteDireccion: response.data!.clienteDireccion,
         ));
       } else {
         emit(OrderFlowError(
@@ -106,6 +120,7 @@ class OrderFlowBloc extends Bloc<OrderFlowEvent, OrderFlowState> {
   ) async {
     _selectedVehiculoId = null;
     _selectedVehiculoInfo = null;
+    _selectedCategoriaVehiculo = null;
     emit(const OrderFlowInitial());
   }
 }

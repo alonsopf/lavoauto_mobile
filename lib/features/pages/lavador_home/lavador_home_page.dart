@@ -2,11 +2,9 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lavoauto/bloc/bloc/user_info_bloc.dart';
-import 'package:lavoauto/bloc/worker/jobsearch/jobsearch_bloc.dart';
-import 'package:lavoauto/bloc/worker/services/services_bloc.dart';
-import 'package:lavoauto/dependencyInjection/di.dart';
-import 'package:lavoauto/features/pages/available_orders/available_orders_page.dart';
-import 'package:lavoauto/features/pages/my_active_orders/my_active_orders_page.dart';
+import 'package:lavoauto/bloc/lavador_ordenes/lavador_ordenes_bloc.dart';
+import 'package:lavoauto/bloc/lavador_ordenes/lavador_ordenes_event.dart';
+import 'package:lavoauto/bloc/lavador_ordenes/lavador_ordenes_state.dart';
 import 'package:lavoauto/features/pages/earnings/earnings_page.dart';
 import 'package:lavoauto/features/pages/lavador_profile/lavador_profile_page.dart';
 import 'package:lavoauto/features/pages/chat_list/chat_list_page.dart';
@@ -26,15 +24,25 @@ class LavadorHomePage extends StatefulWidget {
 
 class _LavadorHomePageState extends State<LavadorHomePage> {
   late UserInfoBloc _userInfoBloc;
+  late LavadorOrdenesBloc _lavadorOrdenesBloc;
   int _selectedIndex = 0;
 
   @override
   void initState() {
     super.initState();
     _userInfoBloc = context.read<UserInfoBloc>();
+    _lavadorOrdenesBloc = context.read<LavadorOrdenesBloc>();
     final token = Utils.getAuthenticationToken();
     if (token.isNotEmpty) {
       _userInfoBloc.add(FetchUserProfileInfoEvent(token: token));
+      _lavadorOrdenesBloc.add(LoadOrdenesPendientesEvent(token));
+    }
+  }
+
+  void _refreshOrdenes() {
+    final token = Utils.getAuthenticationToken();
+    if (token.isNotEmpty) {
+      _lavadorOrdenesBloc.add(LoadOrdenesPendientesEvent(token));
     }
   }
 
@@ -171,43 +179,25 @@ class _LavadorHomePageState extends State<LavadorHomePage> {
                 ),
               ),
               const SizedBox(height: 30),
-              // Ver trabajos disponibles button (Old system)
-              _buildMenuButton(
-                icon: Icons.local_offer_outlined,
-                title: "Ver trabajos disponibles",
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const AvailableOrdersPage(),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
-              // Órdenes Recibidas button (New system)
-              _buildMenuButton(
-                icon: Icons.assignment_outlined,
-                title: "Órdenes Recibidas",
-                subtitle: "Nuevo sistema de órdenes",
-                color: AppColors.primaryNew,
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const LavadorOrdenesPage(),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
-              // Mis pedidos activos button
-              _buildMenuButton(
-                icon: Icons.receipt_long_outlined,
-                title: "Mis pedidos activos",
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const MyActiveOrdersPage(),
-                    ),
+              // Órdenes Recibidas button with badge
+              BlocBuilder<LavadorOrdenesBloc, LavadorOrdenesState>(
+                builder: (context, state) {
+                  int pendingCount = 0;
+                  if (state is OrdenesPendientesLoaded) {
+                    pendingCount = state.ordenes.length;
+                  }
+                  return _buildMenuButton(
+                    icon: Icons.assignment_outlined,
+                    title: "Órdenes Recibidas",
+                    badgeCount: pendingCount,
+                    onTap: () async {
+                      await Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const LavadorOrdenesPage(),
+                        ),
+                      );
+                      _refreshOrdenes();
+                    },
                   );
                 },
               ),
@@ -274,6 +264,7 @@ class _LavadorHomePageState extends State<LavadorHomePage> {
     required VoidCallback onTap,
     String? subtitle,
     Color? color,
+    int badgeCount = 0,
   }) {
     final effectiveColor = color ?? AppColors.primaryNew;
 
@@ -315,13 +306,35 @@ class _LavadorHomePageState extends State<LavadorHomePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.black,
-                    ),
+                  Row(
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.black,
+                        ),
+                      ),
+                      if (badgeCount > 0) ...[
+                        const SizedBox(width: 10),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            badgeCount > 99 ? '99+' : badgeCount.toString(),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                   if (subtitle != null) ...[
                     const SizedBox(height: 4),

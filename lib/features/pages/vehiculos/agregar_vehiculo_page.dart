@@ -303,6 +303,7 @@ class _AgregarVehiculoPageState extends State<AgregarVehiculoPage> {
                     label: "Placas",
                     controller: _placasController,
                     hint: "Ej: ABC-123-D",
+                    tooltip: "Las placas son con fines exclusivos de identificar tu vehículo y no confundirlo con otro.",
                   ),
                   const SizedBox(height: 30),
                   // Save button
@@ -350,17 +351,36 @@ class _AgregarVehiculoPageState extends State<AgregarVehiculoPage> {
     required String label,
     required TextEditingController controller,
     required String hint,
+    String? tooltip,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: AppColors.black,
-          ),
+        Row(
+          children: [
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: AppColors.black,
+              ),
+            ),
+            if (tooltip != null) ...[
+              const SizedBox(width: 6),
+              Tooltip(
+                message: tooltip,
+                triggerMode: TooltipTriggerMode.tap,
+                showDuration: const Duration(seconds: 4),
+                preferBelow: false,
+                child: Icon(
+                  Icons.info_outline,
+                  size: 18,
+                  color: AppColors.grey.withOpacity(0.7),
+                ),
+              ),
+            ],
+          ],
         ),
         const SizedBox(height: 8),
         TextField(

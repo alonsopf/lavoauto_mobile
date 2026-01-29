@@ -36,13 +36,13 @@ class ApiEndpointUrls {
   static const String rateService = "rate-service";
   static const String rateClient = "rate-client";
 
-  // Payment Api Endpoints
-  static const String createSetupIntent = "create-setup-intent";
-  static const String createPaymentMethod = "create-payment-method";
-  static const String getPaymentMethods = "get-stripe-payment-methods";
-  static const String setDefaultPaymentMethod = "set-default-payment-method";
-  static const String deletePaymentMethod = "delete-payment-method";
-  static const String processAutomaticPayment = "process-automatic-payment";
+  // Payment Api Endpoints (Lavoauto-specific - uses LAVOAUTO_STRIPE keys)
+  static const String createSetupIntent = "lavoauto_create-setup-intent";
+  static const String createPaymentMethod = "lavoauto_create-payment-method"; // Not used currently
+  static const String getPaymentMethods = "lavoauto_get-stripe-payment-methods";
+  static const String setDefaultPaymentMethod = "lavoauto_set-default-payment-method";
+  static const String deletePaymentMethod = "lavoauto_delete-payment-method";
+  static const String processAutomaticPayment = "lavoauto_process-automatic-payment"; // Future use
 
   // App Configuration Api Endpoints
   static const String supportInfo = "support-info";
@@ -82,4 +82,8 @@ class ApiEndpointUrls {
   static const String lavoauto_lavador_comenzar_servicio = "lavoauto_lavador-comenzar-servicio"; // POST
   static const String lavoauto_lavador_completar_servicio = "lavoauto_lavador-completar-servicio"; // POST
   static const String lavoauto_lavador_ordenes_activas = "lavoauto_lavador-ordenes-activas"; // GET
+  static const String lavoauto_lavador_mis_ordenes = "lavoauto_lavador-mis-ordenes"; // GET
+
+  // Profile Update Api Endpoints
+  static const String lavoauto_update_cliente = "lavoauto_update-cliente"; // POST
 }

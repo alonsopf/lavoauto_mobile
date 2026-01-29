@@ -219,14 +219,56 @@ class _MisVehiculosPageState extends State<MisVehiculosPage> {
           children: [
             const SizedBox(height: 4),
             Text(
-              vehiculo.fullDescription,
+              '${vehiculo.marca} ${vehiculo.modelo}${vehiculo.anio != null ? ' ${vehiculo.anio}' : ''}',
               style: TextStyle(
                 fontSize: 14,
                 color: AppColors.grey,
               ),
             ),
+            if (vehiculo.color != null && vehiculo.color!.isNotEmpty ||
+                vehiculo.placas != null && vehiculo.placas!.isNotEmpty) ...[
+              const SizedBox(height: 6),
+              Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                children: [
+                  if (vehiculo.color != null && vehiculo.color!.isNotEmpty)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.palette, size: 14, color: AppColors.grey),
+                        const SizedBox(width: 4),
+                        Text(
+                          vehiculo.color!,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.primaryNewDark,
+                          ),
+                        ),
+                      ],
+                    ),
+                  if (vehiculo.placas != null && vehiculo.placas!.isNotEmpty)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.credit_card, size: 14, color: AppColors.grey),
+                        const SizedBox(width: 4),
+                        Text(
+                          vehiculo.placas!,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primaryNewDark,
+                          ),
+                        ),
+                      ],
+                    ),
+                ],
+              ),
+            ],
             if (vehiculo.tipoVehiculo.isNotEmpty) ...[
-              const SizedBox(height: 4),
+              const SizedBox(height: 6),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(

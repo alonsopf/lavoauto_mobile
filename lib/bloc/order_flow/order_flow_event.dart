@@ -21,24 +21,28 @@ class LoadClienteVehiculosForOrderEvent extends OrderFlowEvent {
 class SelectVehiculoEvent extends OrderFlowEvent {
   final int vehiculoClienteId;
   final String vehiculoInfo; // e.g., "Toyota Corolla 2020 (Rojo)"
+  final String categoriaVehiculo; // e.g., "suv", "sedan", "moto"
 
   const SelectVehiculoEvent({
     required this.vehiculoClienteId,
     required this.vehiculoInfo,
+    required this.categoriaVehiculo,
   });
 
   @override
-  List<Object?> get props => [vehiculoClienteId, vehiculoInfo];
+  List<Object?> get props => [vehiculoClienteId, vehiculoInfo, categoriaVehiculo];
 }
 
 /// Event to load nearby lavadores (Step 2)
 class LoadLavadoresCercanosEvent extends OrderFlowEvent {
   final String token;
+  final String categoriaVehiculo; // Filter lavadores by vehicle category
+  final bool forceRecalc; // Force recalculation of distances (skip cache)
 
-  const LoadLavadoresCercanosEvent(this.token);
+  const LoadLavadoresCercanosEvent(this.token, this.categoriaVehiculo, {this.forceRecalc = false});
 
   @override
-  List<Object?> get props => [token];
+  List<Object?> get props => [token, categoriaVehiculo, forceRecalc];
 }
 
 /// Event when user selects a lavador (Step 2 complete)

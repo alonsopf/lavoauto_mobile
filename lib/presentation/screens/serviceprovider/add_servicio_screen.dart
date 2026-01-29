@@ -8,6 +8,7 @@ import '../../../bloc/lavador/servicios_event.dart';
 import '../../../bloc/lavador/servicios_state.dart';
 import '../../../data/models/tipo_servicio_model.dart';
 import '../../../core/config/injection.dart';
+import '../../common_widgets/checklist_info_dialog.dart';
 
 @RoutePage()
 class AddServicioScreen extends StatefulWidget {
@@ -65,6 +66,21 @@ class _AddServicioScreenState extends State<AddServicioScreen> {
     super.dispose();
   }
 
+  /// Get the name of the currently selected service
+  String? _getSelectedServiceName() {
+    if (widget.servicioNombre != null) {
+      return widget.servicioNombre;
+    }
+    if (_selectedTipoServicioId != null && _catalogoServicios.isNotEmpty) {
+      final servicio = _catalogoServicios.firstWhere(
+        (s) => s.tipoServicioId == _selectedTipoServicioId,
+        orElse: () => _catalogoServicios.first,
+      );
+      return servicio.nombre;
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -105,6 +121,13 @@ class _AddServicioScreenState extends State<AddServicioScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  // Checklist info card - updates based on selected service
+                  ChecklistInfoDialog.infoCard(
+                    context,
+                    tipoServicioId: _selectedTipoServicioId ?? widget.tipoServicioId,
+                    nombreServicio: _getSelectedServiceName(),
+                  ),
+                  const SizedBox(height: 8),
                   if (widget.tipoServicioId == null) ...[
                     const Text(
                       'Tipo de Servicio',

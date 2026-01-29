@@ -8,8 +8,9 @@ part of 'orden_model.dart';
 
 LavadorInfo _$LavadorInfoFromJson(Map<String, dynamic> json) => LavadorInfo(
       nombre: json['nombre'] as String,
-      apellido: json['apellido'] as String,
-      calificacionPromedio: (json['calificacion_promedio'] as num).toDouble(),
+      apellido: json['apellido'] as String?,
+      calificacionPromedio:
+          (json['calificacion_promedio'] as num?)?.toDouble() ?? 0.0,
       telefono: json['telefono'] as String?,
     );
 
@@ -58,16 +59,17 @@ Map<String, dynamic> _$ClienteInfoToJson(ClienteInfo instance) =>
 OrdenModel _$OrdenModelFromJson(Map<String, dynamic> json) => OrdenModel(
       ordenId: (json['orden_id'] as num).toInt(),
       status: $enumDecode(_$OrdenStatusEnumMap, json['status']),
-      distanciaKm: (json['distancia_km'] as num).toDouble(),
-      precioKm: (json['precio_km'] as num).toDouble(),
-      precioDistancia: (json['precio_distancia'] as num).toDouble(),
-      precioBase: (json['precio_base'] as num).toDouble(),
-      precioTotal: (json['precio_total'] as num).toDouble(),
-      createdAt: json['created_at'] as String,
+      distanciaKm: (json['distancia_km'] as num?)?.toDouble() ?? 0.0,
+      precioServicio: (json['precio_servicio'] as num?)?.toDouble() ?? 0.0,
+      precioDistancia: (json['precio_distancia'] as num?)?.toDouble() ?? 0.0,
+      precioTotal: (json['precio_total'] as num?)?.toDouble() ?? 0.0,
+      createdAt: json['created_at'] as String? ?? '',
       startedAt: json['started_at'] as String?,
       completedAt: json['completed_at'] as String?,
       fechaEsperada: json['fecha_esperada'] as String?,
       notasCliente: json['notas_cliente'] as String?,
+      tipoServicioId: (json['tipo_servicio_id'] as num?)?.toInt(),
+      nombreServicio: json['nombre_servicio'] as String?,
       lavador: json['lavador'] == null
           ? null
           : LavadorInfo.fromJson(json['lavador'] as Map<String, dynamic>),
@@ -84,15 +86,16 @@ Map<String, dynamic> _$OrdenModelToJson(OrdenModel instance) =>
       'orden_id': instance.ordenId,
       'status': _$OrdenStatusEnumMap[instance.status]!,
       'distancia_km': instance.distanciaKm,
-      'precio_km': instance.precioKm,
+      'precio_servicio': instance.precioServicio,
       'precio_distancia': instance.precioDistancia,
-      'precio_base': instance.precioBase,
       'precio_total': instance.precioTotal,
       'created_at': instance.createdAt,
       'started_at': instance.startedAt,
       'completed_at': instance.completedAt,
       'fecha_esperada': instance.fechaEsperada,
       'notas_cliente': instance.notasCliente,
+      'tipo_servicio_id': instance.tipoServicioId,
+      'nombre_servicio': instance.nombreServicio,
       'lavador': instance.lavador,
       'vehiculo': instance.vehiculo,
       'cliente': instance.cliente,

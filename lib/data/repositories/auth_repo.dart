@@ -266,4 +266,61 @@ class AuthRepo extends ApiClient {
       return ApiResponse(errorMessage: 'An unexpected error occurred: $e');
     }
   }
+
+  /// Update client profile information
+  Future<ApiResponse<Map<String, dynamic>>> updateClienteProfile({
+    required String token,
+    String? calle,
+    String? numeroExterior,
+    String? numeroInterior,
+    String? colonia,
+    String? ciudad,
+    String? estado,
+    String? codigoPostal,
+    double? lat,
+    double? lng,
+    String? fotoUrl,
+  }) async {
+    try {
+      final body = {
+        'token': token,
+        'calle': calle ?? '',
+        'numero_exterior': numeroExterior ?? '',
+        'numero_interior': numeroInterior ?? '',
+        'colonia': colonia ?? '',
+        'ciudad': ciudad ?? '',
+        'estado': estado ?? '',
+        'codigo_postal': codigoPostal ?? '',
+        'lat': lat ?? 0.0,
+        'lng': lng ?? 0.0,
+        'foto_url': fotoUrl ?? '',
+      };
+
+      final response = await postService(
+        ApiEndpointUrls.lavoauto_update_cliente,
+        body,
+        contextType: true,
+      );
+
+      if (response != null) {
+        var response_ = jsonDecode(response.body);
+
+        if (response_['message'] != null || response.statusCode == 200) {
+          return ApiResponse(data: response_);
+        } else {
+          String errorMessage = response_['error'] ??
+                                response_['message'] ??
+                                'Profile update failed';
+          return ApiResponse(errorMessage: errorMessage);
+        }
+      } else {
+        return ApiResponse(errorMessage: 'No response from server');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error in updateClienteProfile: $e");
+      }
+      return ApiResponse(errorMessage: 'An unexpected error occurred: $e');
+    }
+  }
 }

@@ -44,21 +44,21 @@ extension OrdenStatusExtension on OrdenStatus {
 @JsonSerializable()
 class LavadorInfo {
   final String nombre;
-  final String apellido;
+  final String? apellido;
 
-  @JsonKey(name: 'calificacion_promedio')
+  @JsonKey(name: 'calificacion_promedio', defaultValue: 0.0)
   final double calificacionPromedio;
 
   final String? telefono;
 
   LavadorInfo({
     required this.nombre,
-    required this.apellido,
-    required this.calificacionPromedio,
+    this.apellido,
+    this.calificacionPromedio = 0.0,
     this.telefono,
   });
 
-  String get nombreCompleto => '$nombre $apellido';
+  String get nombreCompleto => '$nombre ${apellido ?? ''}'.trim();
 
   factory LavadorInfo.fromJson(Map<String, dynamic> json) =>
       _$LavadorInfoFromJson(json);
@@ -127,22 +127,19 @@ class OrdenModel {
 
   final OrdenStatus status;
 
-  @JsonKey(name: 'distancia_km')
+  @JsonKey(name: 'distancia_km', defaultValue: 0.0)
   final double distanciaKm;
 
-  @JsonKey(name: 'precio_km')
-  final double precioKm;
+  @JsonKey(name: 'precio_servicio', defaultValue: 0.0)
+  final double precioServicio;
 
-  @JsonKey(name: 'precio_distancia')
+  @JsonKey(name: 'precio_distancia', defaultValue: 0.0)
   final double precioDistancia;
 
-  @JsonKey(name: 'precio_base')
-  final double precioBase;
-
-  @JsonKey(name: 'precio_total')
+  @JsonKey(name: 'precio_total', defaultValue: 0.0)
   final double precioTotal;
 
-  @JsonKey(name: 'created_at')
+  @JsonKey(name: 'created_at', defaultValue: '')
   final String createdAt;
 
   @JsonKey(name: 'started_at')
@@ -157,6 +154,12 @@ class OrdenModel {
   @JsonKey(name: 'notas_cliente')
   final String? notasCliente;
 
+  @JsonKey(name: 'tipo_servicio_id')
+  final int? tipoServicioId;
+
+  @JsonKey(name: 'nombre_servicio')
+  final String? nombreServicio;
+
   final LavadorInfo? lavador;
   final VehiculoInfo? vehiculo;
   final ClienteInfo? cliente;
@@ -164,25 +167,30 @@ class OrdenModel {
   OrdenModel({
     required this.ordenId,
     required this.status,
-    required this.distanciaKm,
-    required this.precioKm,
-    required this.precioDistancia,
-    required this.precioBase,
-    required this.precioTotal,
-    required this.createdAt,
+    this.distanciaKm = 0.0,
+    this.precioServicio = 0.0,
+    this.precioDistancia = 0.0,
+    this.precioTotal = 0.0,
+    this.createdAt = '',
     this.startedAt,
     this.completedAt,
     this.fechaEsperada,
     this.notasCliente,
+    this.tipoServicioId,
+    this.nombreServicio,
     this.lavador,
     this.vehiculo,
     this.cliente,
   });
 
   String get precioTotalFormateado => '\$${precioTotal.toStringAsFixed(2)}';
-  String get precioBaseFormateado => '\$${precioBase.toStringAsFixed(2)}';
+  String get precioServicioFormateado => '\$${precioServicio.toStringAsFixed(2)}';
   String get precioDistanciaFormateado => '\$${precioDistancia.toStringAsFixed(2)}';
   String get distanciaFormateada => '${distanciaKm.toStringAsFixed(1)} km';
+
+  // Backward compatibility
+  double get precioBase => precioServicio;
+  String get precioBaseFormateado => precioServicioFormateado;
 
   factory OrdenModel.fromJson(Map<String, dynamic> json) =>
       _$OrdenModelFromJson(json);

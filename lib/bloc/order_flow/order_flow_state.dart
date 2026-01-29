@@ -32,14 +32,16 @@ class ClienteVehiculosLoadedForOrder extends OrderFlowState {
 class VehiculoSelectedForOrder extends OrderFlowState {
   final int vehiculoClienteId;
   final String vehiculoInfo;
+  final String categoriaVehiculo;
 
   const VehiculoSelectedForOrder({
     required this.vehiculoClienteId,
     required this.vehiculoInfo,
+    required this.categoriaVehiculo,
   });
 
   @override
-  List<Object?> get props => [vehiculoClienteId, vehiculoInfo];
+  List<Object?> get props => [vehiculoClienteId, vehiculoInfo, categoriaVehiculo];
 }
 
 /// State after nearby lavadores are loaded (Step 2 ready)
@@ -47,15 +49,19 @@ class LavadoresCercanosLoaded extends OrderFlowState {
   final List<LavadorCercano> lavadores;
   final int vehiculoClienteId;
   final String vehiculoInfo;
+  final String categoriaVehiculo;
+  final String? clienteDireccion;
 
   const LavadoresCercanosLoaded({
     required this.lavadores,
     required this.vehiculoClienteId,
     required this.vehiculoInfo,
+    required this.categoriaVehiculo,
+    this.clienteDireccion,
   });
 
   @override
-  List<Object?> get props => [lavadores, vehiculoClienteId, vehiculoInfo];
+  List<Object?> get props => [lavadores, vehiculoClienteId, vehiculoInfo, categoriaVehiculo, clienteDireccion];
 }
 
 /// State after user selects a lavador (Step 2 complete, ready to proceed)

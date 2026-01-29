@@ -10,6 +10,8 @@ import 'package:responsive_framework/responsive_framework.dart';
 import '../../../bloc/bloc/user_info_bloc.dart';
 import '../../../bloc/lavador/lavador_order_detail_bloc.dart';
 import '../../../bloc/lavador/available_order_detail_bloc.dart';
+import '../../../bloc/ordenes/ordenes_bloc.dart';
+import '../../../bloc/lavador_ordenes/lavador_ordenes_bloc.dart';
 import '../../../bloc/user/order_bloc.dart';
 import '../../../bloc/vehiculos/vehiculos_bloc.dart';
 import '../../../bloc/worker/jobsearch/jobsearch_bloc.dart';
@@ -62,6 +64,12 @@ class _LavoautoAppState extends State<LavoautoApp> {
         ),
         BlocProvider<VehiculosBloc>(
           create: (context) => AppContainer.getIt.get<VehiculosBloc>(),
+        ),
+        BlocProvider<OrdenesBloc>(
+          create: (context) => AppContainer.getIt.get<OrdenesBloc>(),
+        ),
+        BlocProvider<LavadorOrdenesBloc>(
+          create: (context) => AppContainer.getIt.get<LavadorOrdenesBloc>(),
         ),
       ],
       child: MaterialApp.router(

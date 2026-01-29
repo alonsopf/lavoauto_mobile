@@ -14,25 +14,32 @@ class OrdenRepository extends ApiClient {
     required String token,
     required int lavadorId,
     required int vehiculoClienteId,
-    required String fechaEsperada,
     required double distanciaKm,
+    double precioServicio = 0.0,
     String? notasCliente,
+    DateTime? fechaEsperada,
   }) async {
     try {
       print('🟡 Creando nueva orden...');
+      print('🟡 precio_servicio recibido: $precioServicio');
+      print('🟡 fecha_esperada recibida: $fechaEsperada');
 
       final requestBody = {
         'token': token,
         'lavador_id': lavadorId,
         'vehiculo_cliente_id': vehiculoClienteId,
-        'fecha_esperada': fechaEsperada,
         'distancia_km': distanciaKm,
+        'precio_servicio': precioServicio,
         if (notasCliente != null) 'notas_cliente': notasCliente,
+        if (fechaEsperada != null) 'fecha_esperada': fechaEsperada.toIso8601String(),
       };
+
+      print('🟡 Request body: $requestBody');
 
       final response = await postService(
         ApiEndpointUrls.lavoauto_crear_orden,
         requestBody,
+        contextType: true,
       );
 
       if (response != null) {
@@ -192,6 +199,51 @@ class OrdenRepository extends ApiClient {
     }
   }
 
+  /// Get orders for lavador with optional status filter
+  Future<ApiResponse<OrdenesResponse>> getLavadorOrdenes(
+    String token, {
+    String? statusFilter, // 'pending', 'in_progress', 'completed'
+  }) async {
+    try {
+      print('🟡 Obteniendo órdenes del lavador con filtro: $statusFilter...');
+
+      String url = '${ApiEndpointUrls.lavoauto_lavador_mis_ordenes}?token=$token';
+      if (statusFilter != null && statusFilter.isNotEmpty) {
+        url += '&status=$statusFilter';
+      }
+
+      final response = await getService(url);
+
+      if (response != null) {
+        print('🟡 Status Code: ${response.statusCode}');
+        print('🟡 Response Body: ${response.body}');
+
+        var responseData = jsonDecode(response.body);
+
+        if (responseData['ordenes'] != null) {
+          print('✅ Órdenes del lavador: ${responseData['ordenes'].length}');
+          return ApiResponse(
+            data: OrdenesResponse.fromJson(responseData),
+          );
+        } else {
+          print('❌ Error en respuesta: ${responseData['error']}');
+          return ApiResponse(
+            errorMessage: responseData['error'] ?? 'Failed to load orders',
+          );
+        }
+      } else {
+        print('❌ No hay respuesta del servidor');
+        return ApiResponse(errorMessage: 'No response from server');
+      }
+    } catch (e) {
+      print('❌ Exception en getLavadorOrdenes: $e');
+      if (kDebugMode) {
+        print("Error in getLavadorOrdenes: $e");
+      }
+      return ApiResponse(errorMessage: 'An unexpected error occurred: $e');
+    }
+  }
+
   /// Lavador starts service (pending -> in_progress)
   Future<ApiResponse<Map<String, dynamic>>> comenzarServicio({
     required String token,
@@ -208,6 +260,7 @@ class OrdenRepository extends ApiClient {
       final response = await postService(
         ApiEndpointUrls.lavoauto_lavador_comenzar_servicio,
         requestBody,
+        contextType: true,
       );
 
       if (response != null) {
@@ -254,6 +307,7 @@ class OrdenRepository extends ApiClient {
       final response = await postService(
         ApiEndpointUrls.lavoauto_lavador_completar_servicio,
         requestBody,
+        contextType: true,
       );
 
       if (response != null) {

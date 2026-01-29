@@ -8,9 +8,18 @@ class Loader {
   static OverlayEntry overlayEntry(BuildContext context,
       {var text = "", var color = false}) {
     if (!context.mounted) throw Exception('Context is not mounted');
-    
-    OverlayEntry loader = OverlayEntry(
-        builder: (context) => Center(
+
+    late OverlayEntry loader;
+    loader = OverlayEntry(
+        builder: (context) => GestureDetector(
+              onTap: () {
+                // Tap to dismiss loader
+                try {
+                  if (loader.mounted) {
+                    loader.remove();
+                  }
+                } catch (_) {}
+              },
               child: Material(
                 color: color
                     ? AppColors.white
@@ -32,6 +41,14 @@ class Loader {
                         fontSize: 18.0,
                         fontColor: AppColors.primaryColor,
                       ).setText(),
+                      const SizedBox(height: 20),
+                      Text(
+                        'Toca para cancelar',
+                        style: TextStyle(
+                          color: AppColors.greyNormalColor.withOpacity(0.8),
+                          fontSize: 12,
+                        ),
+                      ),
                     ],
                   ),
                 ),

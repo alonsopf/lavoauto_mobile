@@ -4,7 +4,11 @@ import 'package:lavoauto/bloc/order_flow/order_flow_bloc.dart';
 import 'package:lavoauto/bloc/order_flow/order_flow_event.dart';
 import 'package:lavoauto/bloc/order_flow/order_flow_state.dart';
 import 'package:lavoauto/data/models/vehiculo_model.dart';
+import 'package:lavoauto/data/models/request/user/payment_method_request.dart';
+import 'package:lavoauto/data/repositories/user_repo.dart';
+import 'package:lavoauto/dependencyInjection/di.dart';
 import 'package:lavoauto/features/pages/order_flow/seleccionar_lavador_page.dart';
+import 'package:lavoauto/features/pages/payment/mis_metodos_pago_page.dart';
 import 'package:lavoauto/theme/app_color.dart';
 import 'package:lavoauto/utils/utils.dart';
 
@@ -18,12 +22,147 @@ class SeleccionarVehiculoPage extends StatefulWidget {
 
 class _SeleccionarVehiculoPageState extends State<SeleccionarVehiculoPage> {
   late OrderFlowBloc _orderFlowBloc;
+  late UserRepo _userRepo;
+  bool _isCheckingPayment = true;
+  bool _hasPaymentMethod = false;
 
   @override
   void initState() {
     super.initState();
     _orderFlowBloc = context.read<OrderFlowBloc>();
-    _loadVehiculos();
+    _userRepo = AppContainer.getIt.get<UserRepo>();
+    _checkPaymentMethodsFirst();
+  }
+
+  Future<void> _checkPaymentMethodsFirst() async {
+    try {
+      final token = Utils.getAuthenticationToken();
+      if (token.isEmpty) {
+        setState(() {
+          _isCheckingPayment = false;
+        });
+        return;
+      }
+
+      final request = GetPaymentMethodsRequest(token: token);
+      final response = await _userRepo.getPaymentMethods(request);
+
+      if (response.data != null && response.data!.paymentMethods.isNotEmpty) {
+        setState(() {
+          _hasPaymentMethod = true;
+          _isCheckingPayment = false;
+        });
+        _loadVehiculos();
+      } else {
+        setState(() {
+          _isCheckingPayment = false;
+        });
+        // Show modal after build completes
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _showNoPaymentMethodModal();
+        });
+      }
+    } catch (e) {
+      print('Error checking payment methods: $e');
+      setState(() {
+        _isCheckingPayment = false;
+      });
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showNoPaymentMethodModal();
+      });
+    }
+  }
+
+  void _showNoPaymentMethodModal() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.orange.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.credit_card_off,
+                size: 60,
+                color: Colors.orange[700],
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Método de Pago Requerido',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
+                color: AppColors.primaryNewDark,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Para crear una orden de lavado necesitas tener al menos un método de pago registrado.',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey.shade600,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context); // Close dialog
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const MisMetodosPagoPage(),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryNew,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  'Agregar Método de Pago',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Close dialog
+                Navigator.pop(context); // Go back to home
+              },
+              child: const Text(
+                'Cancelar',
+                style: TextStyle(
+                  color: AppColors.grey,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _loadVehiculos() {
@@ -55,39 +194,69 @@ class _SeleccionarVehiculoPageState extends State<SeleccionarVehiculoPage> {
         ),
         elevation: 0,
       ),
-      body: BlocConsumer<OrderFlowBloc, OrderFlowState>(
-        bloc: _orderFlowBloc,
-        listener: (context, state) {
-          if (state is OrderFlowError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: AppColors.error,
-                duration: const Duration(seconds: 5),
+      body: _isCheckingPayment
+          ? const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(color: AppColors.primaryNew),
+                  SizedBox(height: 16),
+                  Text(
+                    'Verificando método de pago...',
+                    style: TextStyle(
+                      color: AppColors.grey,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
               ),
-            );
-          } else if (state is VehiculoSelectedForOrder) {
-            // Navigate to Step 2 - Select Lavador
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const SeleccionarLavadorPage(),
-              ),
-            );
-          }
-        },
-        builder: (context, state) {
-          if (state is OrderFlowLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
+            )
+          : !_hasPaymentMethod
+              ? const Center(
+                  child: Text(
+                    'Redirigiendo...',
+                    style: TextStyle(color: AppColors.grey),
+                  ),
+                )
+              : BlocConsumer<OrderFlowBloc, OrderFlowState>(
+                  bloc: _orderFlowBloc,
+                  listener: (context, state) {
+                    if (state is OrderFlowError) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(state.message),
+                          backgroundColor: AppColors.error,
+                          duration: const Duration(seconds: 5),
+                        ),
+                      );
+                    } else if (state is VehiculoSelectedForOrder) {
+                      // Navigate to Step 2 - Select Lavador
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BlocProvider.value(
+                            value: _orderFlowBloc,
+                            child: const SeleccionarLavadorPage(),
+                          ),
+                        ),
+                      ).then((_) {
+                        // Reload vehicles when returning from lavador selection
+                        _loadVehiculos();
+                      });
+                    }
+                  },
+                  builder: (context, state) {
+                    if (state is OrderFlowLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
 
-          if (state is ClienteVehiculosLoadedForOrder) {
-            return _buildVehiculosList(state.vehiculos);
-          }
+                    if (state is ClienteVehiculosLoadedForOrder) {
+                      return _buildVehiculosList(state.vehiculos);
+                    }
 
-          return _buildEmptyState();
-        },
-      ),
+                    return _buildEmptyState();
+                  },
+                ),
     );
   }
 
@@ -197,6 +366,7 @@ class _SeleccionarVehiculoPageState extends State<SeleccionarVehiculoPage> {
           _orderFlowBloc.add(SelectVehiculoEvent(
             vehiculoClienteId: vehiculo.vehiculoClienteId,
             vehiculoInfo: vehiculoInfo,
+            categoriaVehiculo: vehiculo.tipoVehiculo,
           ));
         },
         borderRadius: BorderRadius.circular(16),

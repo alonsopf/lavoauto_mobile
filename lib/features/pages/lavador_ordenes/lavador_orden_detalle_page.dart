@@ -5,6 +5,7 @@ import 'package:lavoauto/bloc/lavador_ordenes/lavador_ordenes_bloc.dart';
 import 'package:lavoauto/bloc/lavador_ordenes/lavador_ordenes_event.dart';
 import 'package:lavoauto/bloc/lavador_ordenes/lavador_ordenes_state.dart';
 import 'package:lavoauto/data/models/orden_model.dart';
+import 'package:lavoauto/features/pages/lavador_ordenes/checklist_completar_servicio_page.dart';
 import 'package:lavoauto/theme/app_color.dart';
 import 'package:lavoauto/utils/utils.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -73,43 +74,43 @@ class _LavadorOrdenDetallePageState extends State<LavadorOrdenDetallePage> {
   }
 
   Future<void> _completarServicio() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Completar Servicio'),
-        content: const Text(
-          '¿Has terminado el servicio?\n\nSe procesará el cobro automáticamente al cliente.',
+    // Navigate to checklist page instead of showing simple dialog
+    final vehiculoInfo = widget.orden.vehiculo != null
+        ? widget.orden.vehiculo!.descripcion
+        : 'Vehículo';
+    final clienteNombre = widget.orden.cliente != null
+        ? widget.orden.cliente!.nombreCompleto
+        : 'Cliente';
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ChecklistCompletarServicioPage(
+          vehiculoInfo: vehiculoInfo,
+          clienteNombre: clienteNombre,
+          tipoServicioId: widget.orden.tipoServicioId,
+          nombreServicio: widget.orden.nombreServicio,
+          onChecklistCompleted: () {
+            // Pop the checklist page first
+            Navigator.pop(context);
+            // Then process the completion
+            _procesarComplecion();
+          },
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
-            ),
-            child: const Text(
-              'Completar',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        ],
       ),
     );
+  }
 
-    if (confirmed == true) {
-      setState(() {
-        _isProcessing = true;
-      });
+  void _procesarComplecion() {
+    setState(() {
+      _isProcessing = true;
+    });
 
-      final token = Utils.getAuthenticationToken();
-      _lavadorOrdenesBloc.add(CompletarServicioEvent(
-        token: token,
-        ordenId: widget.orden.ordenId,
-      ));
-    }
+    final token = Utils.getAuthenticationToken();
+    _lavadorOrdenesBloc.add(CompletarServicioEvent(
+      token: token,
+      ordenId: widget.orden.ordenId,
+    ));
   }
 
   Future<void> _llamarCliente() async {
@@ -421,23 +422,48 @@ class _LavadorOrdenDetallePageState extends State<LavadorOrdenDetallePage> {
               ),
             ],
             if (widget.orden.fechaEsperada != null) ...[
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  const Icon(
-                    Icons.calendar_today,
-                    size: 18,
-                    color: AppColors.grey,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Fecha esperada: ${_formatExpectedDate(widget.orden.fechaEsperada!)}',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: AppColors.grey,
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.blue[50],
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.blue[200]!),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.schedule,
+                      size: 24,
+                      color: Colors.blue[700],
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Fecha y Hora Esperada',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.blue[700],
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            _formatExpectedDate(widget.orden.fechaEsperada!),
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.blue[900],
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ],
@@ -568,7 +594,7 @@ class _LavadorOrdenDetallePageState extends State<LavadorOrdenDetallePage> {
             ),
             const SizedBox(height: 12),
             _buildPrecioRow(
-              'Distancia (${widget.orden.distanciaKm.toStringAsFixed(1)} km × \$${widget.orden.precioKm.toStringAsFixed(2)}/km)',
+              'Distancia (${widget.orden.distanciaKm.toStringAsFixed(1)} km)',
               widget.orden.precioDistanciaFormateado,
             ),
             const SizedBox(height: 12),
@@ -703,7 +729,7 @@ class _LavadorOrdenDetallePageState extends State<LavadorOrdenDetallePage> {
                     Text(
                       widget.orden.status == OrdenStatus.pending
                           ? 'Comenzar Servicio'
-                          : 'Ya Terminé',
+                          : 'Checklist',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
@@ -807,7 +833,9 @@ class _LavadorOrdenDetallePageState extends State<LavadorOrdenDetallePage> {
   String _formatExpectedDate(String isoDate) {
     try {
       final date = DateTime.parse(isoDate);
-      return DateFormat('EEEE, d MMMM yyyy', 'es').format(date);
+      final dateStr = DateFormat('EEEE, d MMMM yyyy', 'es').format(date);
+      final timeStr = DateFormat('h:mm a', 'es').format(date);
+      return '$dateStr a las $timeStr';
     } catch (e) {
       return isoDate;
     }

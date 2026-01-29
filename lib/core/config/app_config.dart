@@ -4,7 +4,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 class AppConfig {
   // Fallback values for production
   static const String _fallbackApiUrl = "https://xscuh60ayi.execute-api.mx-central-1.amazonaws.com/prod/";
-  static const String _fallbackStripeKey = "pk_live_51R4Od8LX5ZrU9bVIoNwSImLNv6vBtRozjkq3jkpADrFNCqNu6SU9OmedVOZU8mR81d3UcdN3L05P9G4s3Jky1gMy00VCz34KMD";
+  // LAVOAUTO Stripe publishable key (different from LAVOROPA)
+  static const String _fallbackStripeKey = "pk_live_51Sme6WD3QZAsXZbz9IXwrNSf1puvOETVSHqQDXd4kMXGb9HS7URv0RhAkPPUvfxjr5RsWB3Q6P0xORvfkrxgySUr00822ufk6V";
   
   // Environment configuration
   static bool get isProduction {

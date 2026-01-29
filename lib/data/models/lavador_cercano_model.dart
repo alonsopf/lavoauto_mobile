@@ -3,6 +3,66 @@ import 'package:json_annotation/json_annotation.dart';
 part 'lavador_cercano_model.g.dart';
 
 @JsonSerializable()
+class ServicioPrecio {
+  @JsonKey(name: 'precio_id')
+  final int precioId;
+
+  @JsonKey(name: 'categoria_vehiculo')
+  final String categoriaVehiculo;
+
+  final double precio;
+
+  @JsonKey(name: 'duracion_estimada')
+  final int duracionEstimada;
+
+  ServicioPrecio({
+    required this.precioId,
+    required this.categoriaVehiculo,
+    required this.precio,
+    required this.duracionEstimada,
+  });
+
+  String get precioFormateado => '\$${precio.toStringAsFixed(2)}';
+
+  String get duracionFormateada {
+    if (duracionEstimada < 60) {
+      return '${duracionEstimada}min';
+    } else {
+      final horas = duracionEstimada ~/ 60;
+      final mins = duracionEstimada % 60;
+      return mins > 0 ? '${horas}h ${mins}min' : '${horas}h';
+    }
+  }
+
+  factory ServicioPrecio.fromJson(Map<String, dynamic> json) =>
+      _$ServicioPrecioFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ServicioPrecioToJson(this);
+}
+
+@JsonSerializable()
+class ServicioLavador {
+  @JsonKey(name: 'tipo_servicio_id')
+  final int tipoServicioId;
+
+  final String nombre;
+  final String? descripcion;
+  final List<ServicioPrecio> precios;
+
+  ServicioLavador({
+    required this.tipoServicioId,
+    required this.nombre,
+    this.descripcion,
+    required this.precios,
+  });
+
+  factory ServicioLavador.fromJson(Map<String, dynamic> json) =>
+      _$ServicioLavadorFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ServicioLavadorToJson(this);
+}
+
+@JsonSerializable()
 class LavadorCercano {
   @JsonKey(name: 'lavador_id')
   final int lavadorId;
@@ -12,6 +72,9 @@ class LavadorCercano {
   final String? telefono;
   final String? email;
   final String? direccion;
+
+  @JsonKey(name: 'foto_url')
+  final String? fotoUrl;
 
   @JsonKey(name: 'precio_km')
   final double precioKm;
@@ -28,6 +91,8 @@ class LavadorCercano {
   @JsonKey(name: 'duracion_segundos')
   final int duracionSegundos;
 
+  final List<ServicioLavador>? servicios;
+
   LavadorCercano({
     required this.lavadorId,
     required this.nombre,
@@ -35,11 +100,13 @@ class LavadorCercano {
     this.telefono,
     this.email,
     this.direccion,
+    this.fotoUrl,
     required this.precioKm,
     required this.calificacionPromedio,
     required this.distanciaMetros,
     required this.distanciaKm,
     required this.duracionSegundos,
+    this.servicios,
   });
 
   String get nombreCompleto => '$nombre $apellido';
@@ -79,7 +146,13 @@ class LavadorCercano {
 class LavadoresCercanosResponse {
   final List<LavadorCercano> lavadores;
 
-  LavadoresCercanosResponse({required this.lavadores});
+  @JsonKey(name: 'cliente_direccion')
+  final String? clienteDireccion;
+
+  LavadoresCercanosResponse({
+    required this.lavadores,
+    this.clienteDireccion,
+  });
 
   factory LavadoresCercanosResponse.fromJson(Map<String, dynamic> json) =>
       _$LavadoresCercanosResponseFromJson(json);

@@ -5,6 +5,7 @@ import 'package:lavoauto/bloc/ordenes/ordenes_bloc.dart';
 import 'package:lavoauto/bloc/ordenes/ordenes_event.dart';
 import 'package:lavoauto/bloc/ordenes/ordenes_state.dart';
 import 'package:lavoauto/data/models/orden_model.dart';
+import 'package:lavoauto/features/pages/ordenes/orden_detalle_page.dart';
 import 'package:lavoauto/theme/app_color.dart';
 import 'package:lavoauto/utils/utils.dart';
 
@@ -184,11 +185,10 @@ class _MisOrdenesPageState extends State<MisOrdenesPage>
       ),
       child: InkWell(
         onTap: () {
-          // TODO: Navigate to order detail
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Detalle de orden próximamente'),
-              backgroundColor: AppColors.primaryNew,
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => OrdenDetallePage(orden: orden),
             ),
           );
         },

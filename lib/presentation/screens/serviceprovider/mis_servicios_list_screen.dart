@@ -8,6 +8,7 @@ import '../../../bloc/lavador/servicios_state.dart';
 import '../../../data/models/lavador_servicio_model.dart';
 import '../../../core/config/injection.dart';
 import '../../router/router.gr.dart';
+import '../../common_widgets/checklist_info_dialog.dart';
 
 @RoutePage()
 class MisServiciosListScreen extends StatefulWidget {
@@ -40,6 +41,9 @@ class _MisServiciosListScreenState extends State<MisServiciosListScreen> {
         title: const Text('Mis Servicios',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
         elevation: 0,
+        actions: [
+          ChecklistInfoDialog.appBarButton(context),
+        ],
       ),
       body: BlocConsumer<ServiciosBloc, ServiciosState>(
         bloc: _serviciosBloc,

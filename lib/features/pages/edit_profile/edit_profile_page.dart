@@ -24,6 +24,17 @@ class _EditProfilePageState extends State<EditProfilePage> {
   bool _isLoading = false;
   bool _isImageLoading = false;
   String? _currentImageUrl;
+  bool _isLavador = false;
+  bool _hasPrePopulated = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Pre-populate fields immediately on init
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _prePopulateFields();
+    });
+  }
 
   @override
   void dispose() {
@@ -34,21 +45,29 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
   void _prePopulateFields() {
+    if (_hasPrePopulated) return;
+
     final userInfoState = context.read<UserInfoBloc>().state;
     if (userInfoState is UserInfoSuccess && userInfoState.userWorkerInfo?.data != null) {
       final data = userInfoState.userWorkerInfo!.data!;
-      _controllers[0].text = data.nombre ?? '';
-      _controllers[1].text = data.apellidos ?? '';
-      _controllers[2].text = data.rfc ?? '';
-      _controllers[3].text = data.clabe ?? '';
-      _controllers[4].text = data.calle ?? '';
-      _controllers[5].text = data.numeroexterior ?? '';
-      _controllers[6].text = data.numerointerior ?? '';
-      _controllers[7].text = data.colonia ?? '';
-      _controllers[8].text = data.ciudad ?? '';
-      _controllers[9].text = data.estado ?? '';
-      _controllers[10].text = data.codigoPostal ?? '';
-      _currentImageUrl = data.fotoUrl;
+      final userType = userInfoState.userWorkerInfo!.userType;
+
+      setState(() {
+        _isLavador = userType == 'lavador';
+        _controllers[0].text = data.nombre ?? '';
+        _controllers[1].text = data.apellidos ?? '';
+        _controllers[2].text = data.rfc ?? '';
+        _controllers[3].text = data.clabe ?? '';
+        _controllers[4].text = data.calle ?? '';
+        _controllers[5].text = data.numeroexterior ?? '';
+        _controllers[6].text = data.numerointerior ?? '';
+        _controllers[7].text = data.colonia ?? '';
+        _controllers[8].text = data.ciudad ?? '';
+        _controllers[9].text = data.estado ?? '';
+        _controllers[10].text = data.codigoPostal ?? '';
+        _currentImageUrl = data.fotoUrl;
+        _hasPrePopulated = true;
+      });
     }
   }
 
@@ -109,14 +128,41 @@ class _EditProfilePageState extends State<EditProfilePage> {
         return;
       }
 
-      final workerRepo = WorkerRepo();
-      final updateRequest = UpdateWorkerInfoRequest(
-        token: token,
-        body: UpdateWorkerInfoBody(
-          nombre: _controllers[0].text.trim(),
-          apellidos: _controllers[1].text.trim(),
-          rfc: _controllers[2].text.trim(),
-          clabe: _controllers[3].text.trim(),
+      bool success = false;
+
+      if (_isLavador) {
+        // Use worker repo for lavadores
+        final workerRepo = WorkerRepo();
+        final updateRequest = UpdateWorkerInfoRequest(
+          token: token,
+          body: UpdateWorkerInfoBody(
+            nombre: _controllers[0].text.trim(),
+            apellidos: _controllers[1].text.trim(),
+            rfc: _controllers[2].text.trim(),
+            clabe: _controllers[3].text.trim(),
+            calle: _controllers[4].text.trim(),
+            numeroExterior: _controllers[5].text.trim(),
+            numeroInterior: _controllers[6].text.trim(),
+            colonia: _controllers[7].text.trim(),
+            ciudad: _controllers[8].text.trim(),
+            estado: _controllers[9].text.trim(),
+            codigoPostal: _controllers[10].text.trim(),
+            lat: userInfoState.userWorkerInfo?.data?.lat ?? 0.0,
+            lon: userInfoState.userWorkerInfo?.data?.lon ?? 0.0,
+            fotoURL: _currentImageUrl ?? userInfoState.userWorkerInfo?.data?.fotoUrl,
+          ),
+        );
+
+        final response = await workerRepo.updateWorkerInfo(updateRequest);
+        success = response.data != null;
+        if (!success) {
+          _showMessage('Error: ${response.errorMessage ?? 'No se pudo actualizar'}');
+        }
+      } else {
+        // Use auth repo for clients
+        final authRepo = AuthRepo();
+        final response = await authRepo.updateClienteProfile(
+          token: token,
           calle: _controllers[4].text.trim(),
           numeroExterior: _controllers[5].text.trim(),
           numeroInterior: _controllers[6].text.trim(),
@@ -125,17 +171,18 @@ class _EditProfilePageState extends State<EditProfilePage> {
           estado: _controllers[9].text.trim(),
           codigoPostal: _controllers[10].text.trim(),
           lat: userInfoState.userWorkerInfo?.data?.lat ?? 0.0,
-          lon: userInfoState.userWorkerInfo?.data?.lon ?? 0.0,
-          fotoURL: _currentImageUrl ?? userInfoState.userWorkerInfo?.data?.fotoUrl,
-        ),
-      );
+          lng: userInfoState.userWorkerInfo?.data?.lon ?? 0.0,
+          fotoUrl: _currentImageUrl ?? userInfoState.userWorkerInfo?.data?.fotoUrl,
+        );
+        success = response.data != null;
+        if (!success) {
+          _showMessage('Error: ${response.errorMessage ?? 'No se pudo actualizar'}');
+        }
+      }
 
-      final response = await workerRepo.updateWorkerInfo(updateRequest);
-      if (response.data != null) {
+      if (success) {
         _showMessage('Perfil actualizado exitosamente');
         context.read<UserInfoBloc>().add(FetchUserProfileInfoEvent(token: token));
-      } else {
-        _showMessage('Error: ${response.errorMessage ?? 'No se pudo actualizar'}');
       }
     } catch (e) {
       _showMessage('Error: $e');
@@ -177,12 +224,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
       ),
       body: BlocBuilder<UserInfoBloc, UserInfoState>(
         builder: (context, state) {
-          if (state is UserInfoSuccess) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              _prePopulateFields();
-            });
-          }
-
           return SingleChildScrollView(
             padding: const EdgeInsets.all(20),
             child: Column(
@@ -265,10 +306,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 _buildTextField(label: "Nombre", controller: _controllers[0], readOnly: true),
                 const SizedBox(height: 16),
                 _buildTextField(label: "Apellidos", controller: _controllers[1], readOnly: true),
-                const SizedBox(height: 16),
-                _buildTextField(label: "RFC", controller: _controllers[2], readOnly: true),
-                const SizedBox(height: 16),
-                _buildTextField(label: "CLABE", controller: _controllers[3]),
+                // RFC and CLABE only shown for lavadores
+                if (_isLavador) ...[
+                  const SizedBox(height: 16),
+                  _buildTextField(label: "RFC", controller: _controllers[2], readOnly: true),
+                  const SizedBox(height: 16),
+                  _buildTextField(label: "CLABE", controller: _controllers[3]),
+                ],
                 const SizedBox(height: 20),
                 const Text(
                   "Dirección",

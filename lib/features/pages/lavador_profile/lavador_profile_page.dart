@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lavoauto/bloc/bloc/user_info_bloc.dart';
-import 'package:lavoauto/features/pages/edit_services/edit_services_page.dart';
 import 'package:lavoauto/features/pages/edit_profile/edit_profile_page.dart';
 import 'package:lavoauto/features/pages/precio_km/precio_km_page.dart';
+import 'package:lavoauto/features/pages/support/support_page.dart';
+import 'package:lavoauto/features/pages/lavador_profile/horarios_page.dart';
+import 'package:lavoauto/features/pages/lavador_profile/cuenta_bancaria_page.dart';
 import 'package:lavoauto/theme/app_color.dart';
 import 'package:lavoauto/utils/utils.dart';
 
@@ -135,16 +137,6 @@ class _LavadorProfilePageState extends State<LavadorProfilePage> {
                     },
                   ),
                   _menuItem(
-                    title: "Editar servicios",
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const EditServicesPage(),
-                        ),
-                      );
-                    },
-                  ),
-                  _menuItem(
                     title: "Precio por KM",
                     onTap: () {
                       Navigator.of(context).push(
@@ -157,27 +149,30 @@ class _LavadorProfilePageState extends State<LavadorProfilePage> {
                   _menuItem(
                     title: "Horarios",
                     onTap: () {
-                      // TODO: Navigate to schedules page
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Funcionalidad próximamente')),
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const HorariosPage(),
+                        ),
                       );
                     },
                   ),
                   _menuItem(
                     title: "Cuenta bancaria",
                     onTap: () {
-                      // TODO: Navigate to bank account page
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Funcionalidad próximamente')),
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const CuentaBancariaPage(),
+                        ),
                       );
                     },
                   ),
                   _menuItem(
                     title: "Ayuda",
                     onTap: () {
-                      // TODO: Navigate to help page
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Funcionalidad próximamente')),
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const SupportPage(),
+                        ),
                       );
                     },
                   ),
